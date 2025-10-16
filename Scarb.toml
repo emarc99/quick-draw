@@ -1,0 +1,15 @@
+[package]
+name = "quick_draw_arena"
+version = "0.1.0"
+edition = "2024_07"
+
+[dependencies]
+dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.7.1" }
+starknet = "2.12.2"
+
+[[target.starknet-contract]]
+sierra = true
+build-external-contracts = ["dojo::world::world_contract::world"]
+
+[profile.sepolia]
+# Sepolia testnet profile
