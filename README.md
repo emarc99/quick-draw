@@ -1,3 +1,9 @@
+![Dojo Starter](./assets/quickdraw-thumbnail.png)
+
+
+
+---
+
 # Quick Draw Arena - Deployment Guide
 
 ## Project Overview
