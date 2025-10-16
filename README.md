@@ -1,76 +1,135 @@
-![Dojo Starter](./assets/cover.png)
+# Quick Draw Arena - Deployment Guide
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset=".github/mark-dark.svg">
-  <img alt="Dojo logo" align="right" width="120" src=".github/mark-light.svg">
-</picture>
+## Project Overview
 
-<a href="https://x.com/ohayo_dojo">
-<img src="https://img.shields.io/twitter/follow/dojostarknet?style=social"/>
-</a>
-<a href="https://github.com/dojoengine/dojo/stargazers">
-<img src="https://img.shields.io/github/stars/dojoengine/dojo?style=social"/>
-</a>
+Quick Draw Arena is a 1v1 commit-reveal dueling game built on Dojo (Starknet) with rock-paper-scissors style combat.
 
-[![discord](https://img.shields.io/badge/join-dojo-green?logo=discord&logoColor=white)](https://discord.com/invite/dojoengine)
-[![Telegram Chat][tg-badge]][tg-url]
+## Smart Contract Features
 
-[tg-badge]: https://img.shields.io/endpoint?color=neon&logo=telegram&label=chat&style=flat-square&url=https%3A%2F%2Ftg.sumanjay.workers.dev%2Fdojoengine
-[tg-url]: https://t.me/dojoengine
+### Models
+- **Match**: Tracks game state, players, wager, rounds won, current round, status
+- **RoundCommitment**: Implements commit-reveal pattern for secure action submission
+- **PlayerStats**: Tracks wins, losses, total wagered, total won
 
-# Dojo Starter: Official Guide
+### Game Systems
+- `create_match(wager)` - Create new match with wager amount
+- `join_match(match_id)` - Join an existing waiting match
+- `commit_action(match_id, commitment)` - Commit hashed action (Poseidon hash)
+- `reveal_action(match_id, action, salt)` - Reveal action and resolve round
 
-A quickstart guide to help you build and deploy your first Dojo provable game.
+### Game Rules
+- Best of 3 rounds
+- Actions: Attack (1), Defend (2), Special (3)
+- Rock-paper-scissors logic:
+  - Attack beats Defend
+  - Defend beats Special
+  - Special beats Attack
+- First to win 2 rounds wins the match
+- Winner receives 2x wager amount
 
-Read the full tutorial [here](https://dojoengine.org/tutorial/dojo-starter).
+## Local Deployment (✅ Completed)
 
-## Running Locally
+### Prerequisites
+- Dojo 1.5.1 (sozo, katana, torii)
+- WSL or Linux environment
 
-#### Terminal one (Make sure this is running)
+### Steps
 
+1. **Build contracts**:
+   ```bash
+   cd /mnt/c/Users/LENOVO/Documents/resolve-stark/quick_draw_arena
+   sozo build
+   ```
+
+2. **Start Katana (local testnet)**:
+   ```bash
+   katana --dev --dev.no-fee
+   ```
+
+3. **Deploy**:
+   ```bash
+   sozo migrate
+   ```
+
+### Deployed Addresses (Local Katana)
+
+- **World Address**: `0x0334b5b21b21e43bc45661f1bb915cfa96676e731aac509200d9d789a80d94a4`
+- **RPC URL**: `http://localhost:5050/`
+- **Default Account**: `0x127fd5f1fe78a71f8bcd1fec63e3fe2f0486b6ecd5c86a0466c3a21fa5cfcec`
+
+## Sepolia Deployment (Completed)
+
+### Current Status
+Deployed MVP UI
+
+### Configuration Files
+
+- `dojo_dev.toml` - Local Katana configuration
+- `dojo_sepolia.toml` - Sepolia testnet configuration (created)
+- `Scarb.toml` - Build configuration with Sepolia profile
+
+### Deploy to Sepolia 
 ```bash
-# Run Katana
-katana --dev --dev.no-fee
+# Build for Sepolia
+sozo -P sepolia build
+
+# Deploy to Sepolia
+sozo -P sepolia migrate
 ```
 
-#### Terminal two
+## Project Structure
 
-```bash
-# Build the example
-sozo build
-
-# Inspect the world
-sozo inspect
-
-# Migrate the example
-sozo migrate
-
-# Start Torii
-# Replace <WORLD_ADDRESS> with the address of the deployed world from the previous step
-torii --world <WORLD_ADDRESS> --http.cors_origins "*"
+```
+quick_draw_arena/
+├── src/
+│   ├── lib.cairo              # Module exports
+│   ├── models.cairo           # Game models (Match, RoundCommitment, PlayerStats)
+│   └── systems/
+│       └── actions.cairo      # Game logic systems
+├── Scarb.toml                 # Build configuration
+├── dojo_dev.toml             # Local deployment config
+├── dojo_sepolia.toml         # Sepolia deployment config
+└── DEPLOYMENT.md             # This file
 ```
 
-## Docker
-You can start stack using docker compose. [Here are the installation instruction](https://docs.docker.com/engine/install/)
+## Testing Locally
+
+You can test the game using sozo commands:
 
 ```bash
-docker compose up
+# Create a match (replace with actual wager amount)
+sozo execute quick_draw_arena-actions create_match -c 1000
+
+# Join a match (replace match_id)
+sozo execute quick_draw_arena-actions join_match -c 1
+
+# Commit action (compute hash off-chain first)
+# Hash = poseidon(action, salt)
+sozo execute quick_draw_arena-actions commit_action -c 1,<commitment_hash>
+
+# Reveal action
+sozo execute quick_draw_arena-actions reveal_action -c 1,<action>,<salt>
 ```
-You'll get all services logs in the same terminal instance. Whenever you want to stop just ctrl+c
 
----
+## Next Steps
 
-## Contribution
+1. ✅ Smart contracts deployed locally
+2. ✅ Frontend development (React + Vite + Dojo SDK)
+4. ✅ Deploy to Sepolia and verify on Starkscan
+5. ✅ Integrate Cartridge Controller for wallet management
+6. ⏳ OpenZeppelin integration for token economy
 
-1. **Report a Bug**
+## Links
 
-    - If you think you have encountered a bug, and we should know about it, feel free to report it [here](https://github.com/dojoengine/dojo-starter/issues) and we will take care of it.
+- **Dojo Documentation**: https://book.dojoengine.org/
+- **Starknet Sepolia Faucet**: https://faucet.starknet.io/
+- **Starkscan (Sepolia)**: https://sepolia.starkscan.co/
 
-2. **Request a Feature**
+## Notes
+### Technical Deep Dive:
+Integrate OpenZeppelin at multiple levels:
 
-    - You can also request for a feature [here](https://github.com/dojoengine/dojo-starter/issues), and if it's viable, it will be picked for development.
-
-3. **Create a Pull Request**
-    - It can't get better then this, your pull request will be appreciated by the community.
-
-Happy coding!
+- ERC20 DUEL Token - Used the full ERC20Component with Ownable for admin minting. Players approve the game contract once, then it handles escrow during matches. Winner gets 2x automatically on match completion.
+- ERC721 Achievements - Only the game contract can mint these NFTs, enforced through access control. Each achievement type is stored in the token's metadata. Fully enumerable and tradeable.
+- Component Composition - We follow OpenZeppelin's component pattern, composing ERC20 + Ownable, and ERC721 + SRC5 + Ownable. This demonstrates understanding of Cairo's component system.
+- Integration with Dojo - The game systems call OpenZeppelin contracts for token transfers and NFT minting. This proves different Cairo frameworks can work together seamlessly."
