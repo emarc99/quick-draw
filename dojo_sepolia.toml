@@ -19,8 +19,8 @@ default = "quick_draw_arena"
 rpc_url = "https://api.cartridge.gg/x/starknet/sepolia"
 # You need to set your own account address and private key
 # Get testnet funds from https://faucet.starknet.io/
-account_address = "0x02381cf45a5c65727166bc78e7fbfda9a7de1559171e1828f0c5df35371cff1d"
-private_key = "0x01216f5cf883415ded2e0d400909dac401ff165d0f055d50758c03a1833b13d9"
+account_address = ""
+private_key = ""
 # world_address will be filled after deployment
 # world_address = "0x040903830c65eadc55dcf65845901c0597eca313fbd462e516bc72c86ef87ef7"
 
